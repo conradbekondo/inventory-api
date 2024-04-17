@@ -1,0 +1,41 @@
+name: Docker Builder
+on:
+  push:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    env:
+      JAVA_VERSION: 17
+      DOCKER_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+      DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: oracle
+
+      - name: Build Java Code
+        run: gradle bootJar
+
+      - name: Build Docker Image
+        run: docker build --build-arg JAR_FILE=build/libs/spring-tutorial-0.0.1-SNAPSHOT.jar -t conrad302/inventory-api:latest .
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: conrad302/inventory-api
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+            username: ${{ env.DOCKER_USER }}
+            password: ${{ env.DOCKER_TOKEN }}
+
+      - name: Push to Docker Hub
+        run: docker push conrad302/inventory-api:latest
