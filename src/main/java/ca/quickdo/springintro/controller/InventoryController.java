@@ -1,11 +1,14 @@
 package ca.quickdo.springintro.controller;
 
+import ca.quickdo.springintro.dto.NewProductDto;
 import ca.quickdo.springintro.models.Product;
 import ca.quickdo.springintro.repository.ProductsRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import net.bytebuddy.asm.Advice;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/inventory")
@@ -17,8 +20,28 @@ public class InventoryController {
     }
 
     @GetMapping
-    @ResponseBody
     public Iterable<Product> getAllProducts() {
         return productsRepository.findAll();
     }
+
+    @PostMapping(path = "/products")
+    public ResponseEntity<?> addProduct(@RequestBody NewProductDto product) {
+        if (this.productsRepository.existsByName(product.getName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("A product already exists with this nama");
+        } else {
+            var newProduct = Product.builder()
+                    .name(product.getName())
+                    .build();
+            return ResponseEntity.of(Optional.of(productsRepository.save(newProduct)));
+
+
+        }
+    }
 }
+
+
+
+
+
+
