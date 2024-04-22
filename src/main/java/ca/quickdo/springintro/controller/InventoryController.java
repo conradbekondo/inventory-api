@@ -29,7 +29,7 @@ public class InventoryController {
     @GetMapping("/products")
     public ResponseEntity<Page<Product>> getProducts(
             @RequestParam(required = false) Integer offset,
-            @RequestParam(required = true) Integer size,
+            @RequestParam(defaultValue= "50") Integer size,
             @RequestParam(required = false) Integer afterProductId
     ) {
         Pageable pageable = PageRequest.of(
