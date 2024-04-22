@@ -19,6 +19,16 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: oracle
 
+      - name: Write .env.properties file
+        uses: DamianReeves/write-file@v1.3
+        with:
+          write-mode: overwrite
+          contents: |
+            spring.datasource.url=${{ secrets.AIVEN_DB_URL }}
+            spring.datasource.username=${{ secrets.AIVEN_USERNAME }}
+            spring.datasource.password=${{ secrets.AIVEN_PASSWORD }}
+          path: src/main/resources/.env.properties
+
       - name: Build Java Code
         run: gradle bootJar
 
