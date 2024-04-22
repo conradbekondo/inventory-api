@@ -20,7 +20,7 @@ jobs:
           distribution: oracle
 
       - name: Write .env.properties file
-        uses: DamianReeves/write-file@v1.3
+        uses: DamianReeves/write-file-action@v1.3
         with:
           write-mode: overwrite
           contents: |
