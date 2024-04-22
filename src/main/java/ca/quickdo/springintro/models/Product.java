@@ -1,7 +1,10 @@
 package ca.quickdo.springintro.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,6 +18,8 @@ import java.util.HashSet;
 @Jacksonized
 @Builder
 @Entity
+@NoArgsConstructor(onConstructor =@__({@JsonCreator}))
+@AllArgsConstructor(onConstructor =@__({@JsonCreator}))
 @Table(name = "products")
 public class Product {
     @Column
