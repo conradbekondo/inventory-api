@@ -1,12 +1,14 @@
 package ca.quickdo.springintro.controller;
 
+import ca.quickdo.springintro.dtos.ProductDTO;
 import ca.quickdo.springintro.models.Product;
 import ca.quickdo.springintro.repository.ProductsRepository;
+import ca.quickdo.springintro.repository.MovementsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(path = "/api/inventory")
 public class InventoryController {
     private final ProductsRepository productsRepository;
+    private final MovementsRepository movementsRepository;
 
-    public InventoryController(ProductsRepository repository) {
+    public InventoryController(ProductsRepository repository, MovementsRepository movementsRepository) {
         this.productsRepository = repository;
+        this.movementsRepository = movementsRepository;
     }
 
     @GetMapping
@@ -29,8 +33,9 @@ public class InventoryController {
         return productsRepository.findAll();
     }
 
+
     @GetMapping("/products")
-    public ResponseEntity<Page<Product>> getProducts(
+    public ResponseEntity<Page<ProductDTO>> getProducts(
             @RequestParam(required = false) Integer offset,
             @RequestParam(required = true) Integer size,
             @RequestParam(required = false) Integer afterProductId
@@ -48,6 +53,17 @@ public class InventoryController {
             products = productsRepository.findAll(pageable);
         }
 
-        return ResponseEntity.ok(products);
+        Page<ProductDTO> productDTOs = products.map(product -> {
+            int totalQuantity = movementsRepository.calculateTotalQuantityByProduct(product.getId());
+            return ProductDTO.builder()
+                    .name(product.getName())
+                    .color(product.getColor())
+                    .description(product.getDescription())
+                    .quantity(totalQuantity)
+                    .build();
+        });
+
+        return ResponseEntity.ok(productDTOs);
     }
+
 }
