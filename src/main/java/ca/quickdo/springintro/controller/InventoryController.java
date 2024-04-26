@@ -1,35 +1,42 @@
 package ca.quickdo.springintro.controller;
 
-import ca.quickdo.springintro.dto.NewProductDto;
+import ca.quickdo.springintro.dtos.ProductDTO;
 import ca.quickdo.springintro.models.Product;
+import ca.quickdo.springintro.repository.MovementsRepository;
 import ca.quickdo.springintro.repository.ProductsRepository;
-import net.bytebuddy.asm.Advice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping(path = "/api/inventory")
 public class InventoryController {
     private final ProductsRepository productsRepository;
+    private final MovementsRepository movementsRepository;
 
-    public InventoryController(ProductsRepository repository) {
+    public InventoryController(ProductsRepository repository, MovementsRepository movementsRepository) {
         this.productsRepository = repository;
+        this.movementsRepository = movementsRepository;
     }
 
+    @GetMapping
+    @ResponseBody
+    public Iterable<Product> getAllProducts() {
+        return productsRepository.findAll();
+    }
+
+
     @GetMapping("/products")
-    public ResponseEntity<Page<Product>> getProducts(
+    public ResponseEntity<Page<ProductDTO>> getProducts(
             @RequestParam(required = false) Integer offset,
-            @RequestParam(defaultValue= "50") Integer size,
+            @RequestParam(required = true) Integer size,
             @RequestParam(required = false) Integer afterProductId
     ) {
         Pageable pageable = PageRequest.of(
@@ -45,11 +52,21 @@ public class InventoryController {
             products = productsRepository.findAll(pageable);
         }
 
-        return ResponseEntity.ok(products);
+        Page<ProductDTO> productDTOs = products.map(product -> {
+            int totalQuantity = movementsRepository.calculateTotalQuantityByProduct(product.getId());
+            return ProductDTO.builder()
+                    .name(product.getName())
+                    .color(product.getColor())
+                    .description(product.getDescription())
+                    .quantity(totalQuantity)
+                    .build();
+        });
+
+        return ResponseEntity.ok(productDTOs);
     }
 
     @PostMapping(path = "/products")
-    public ResponseEntity<?> addProduct(@RequestBody NewProductDto product) {
+    public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
         if (this.productsRepository.existsByName(product.getName())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("A product already exists with this nama");
@@ -62,4 +79,5 @@ public class InventoryController {
 
         }
     }
+
 }
