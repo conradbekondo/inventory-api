@@ -1,5 +1,6 @@
 package ca.quickdo.springintro.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -11,6 +12,7 @@ import java.util.Date;
 @Data
 @Jacksonized
 @Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "stock_movements")
 public class Movement {
