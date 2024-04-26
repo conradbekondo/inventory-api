@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductsRepository extends JpaRepository<Product, Integer> {
     Page<Product> findByIdGreaterThan(Integer id, Pageable pageable);
+    boolean existsByName(String name);
 }

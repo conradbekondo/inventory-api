@@ -2,19 +2,25 @@ package ca.quickdo.springintro.controller;
 
 import ca.quickdo.springintro.dtos.ProductDTO;
 import ca.quickdo.springintro.models.Product;
-import ca.quickdo.springintro.repository.ProductsRepository;
 import ca.quickdo.springintro.repository.MovementsRepository;
+import ca.quickdo.springintro.repository.ProductsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import net.bytebuddy.asm.Advice;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping(path = "/api/inventory")
@@ -64,6 +70,21 @@ public class InventoryController {
         });
 
         return ResponseEntity.ok(productDTOs);
+    }
+
+    @PostMapping(path = "/products")
+    public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
+        if (this.productsRepository.existsByName(product.getName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("A product already exists with this nama");
+        } else {
+            var newProduct = Product.builder()
+                    .name(product.getName())
+                    .build();
+            return ResponseEntity.of(Optional.of(productsRepository.save(newProduct)));
+
+
+        }
     }
 
 }
