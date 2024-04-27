@@ -1,7 +1,10 @@
 package ca.quickdo.springintro.controller;
 
 import ca.quickdo.springintro.dtos.ProductDTO;
+import ca.quickdo.springintro.dtos.UnitConfigurationDTO;
 import ca.quickdo.springintro.models.Product;
+import ca.quickdo.springintro.models.Unit;
+import ca.quickdo.springintro.repository.UnitsRepository;
 import ca.quickdo.springintro.repository.MovementsRepository;
 import ca.quickdo.springintro.repository.ProductsRepository;
 import org.springframework.data.domain.Page;
@@ -10,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -21,9 +27,13 @@ public class InventoryController {
     private final ProductsRepository productsRepository;
     private final MovementsRepository movementsRepository;
 
-    public InventoryController(ProductsRepository repository, MovementsRepository movementsRepository) {
+    private final UnitsRepository unitsRepository;
+
+    public InventoryController(ProductsRepository repository, MovementsRepository movementsRepository, UnitsRepository unitsRepository) {
+        // Assigned Repositories dependency
         this.productsRepository = repository;
         this.movementsRepository = movementsRepository;
+        this.unitsRepository = unitsRepository;
     }
 
     @GetMapping
@@ -76,8 +86,54 @@ public class InventoryController {
                     .build();
             return ResponseEntity.of(Optional.of(productsRepository.save(newProduct)));
 
-
         }
+    }
+
+    @PostMapping(path = "/products/{productId}/units")
+    @Transactional
+    public ResponseEntity<?> createUnitsForProduct(
+            @PathVariable Integer productId,
+            @RequestBody List<UnitConfigurationDTO> unitConfigurations
+    ) {
+        Optional<Product> optionalProduct = productsRepository.findById(productId);
+        if (optionalProduct.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Product product = optionalProduct.get();
+
+        try {
+            // Create units for the product with the specified configurations
+            List<Unit> units = new ArrayList<>();
+
+            for (UnitConfigurationDTO configuration : unitConfigurations) {
+                if (product.hasUnitWithName(configuration.getName())) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("A unit already exists with the same name for the product");
+                }
+
+                Unit unit = createUnit(configuration, product);
+                units.add(unit);
+            }
+
+            // Save the units
+            unitsRepository.saveAll(units);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            // Handle any exception that occurred during unit creation
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private Unit createUnit(UnitConfigurationDTO configuration, Product product) {
+        Unit unit = Unit.builder()
+                .name(configuration.getName())
+                .price(configuration.getPrice())
+                .baseMultiplier(configuration.getBaseMultiplier())
+                .product(product)
+                .build();
+        return unit;
     }
 
 }

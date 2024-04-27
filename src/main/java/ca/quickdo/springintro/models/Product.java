@@ -37,4 +37,13 @@ public class Product {
 
     @UpdateTimestamp
     private Date updatedAt;
+
+    public boolean hasUnitWithName(String unitName) {
+        for (Unit unit : units) {
+            if (unit.getName().equals(unitName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
