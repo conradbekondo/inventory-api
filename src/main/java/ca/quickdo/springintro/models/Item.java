@@ -16,6 +16,7 @@ import javax.persistence.Table;
 @Jacksonized
 @Embeddable
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 public class Item {
 
