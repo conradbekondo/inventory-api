@@ -107,7 +107,7 @@ public class InventoryController {
             List<Unit> units = new ArrayList<>();
 
             for (UnitConfigurationDTO configuration : unitConfigurations) {
-                if (product.hasUnitWithName(configuration.getName())) {
+                if (productsRepository.existsByUnits_NameAndId(configuration.getName(), productId)) {
                     return ResponseEntity.status(HttpStatus.CONFLICT)
                             .body("A unit already exists with the same name for the product");
                 }
@@ -135,5 +135,6 @@ public class InventoryController {
                 .build();
         return unit;
     }
-
 }
+
+
