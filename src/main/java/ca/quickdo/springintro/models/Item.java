@@ -1,8 +1,10 @@
 package ca.quickdo.springintro.models;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.persistence.ElementCollection;
@@ -13,6 +15,8 @@ import javax.persistence.Table;
 @Data
 @Jacksonized
 @Embeddable
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
 
 
@@ -23,32 +27,6 @@ public class Item {
     private double sellingPrice;
 
 
-    public String getProductId() {
-        return productId;
-    }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
-    }
-
-    public String getMovementId() {
-        return movementId;
-    }
-
-    public void setMovementId(String movementId) {
-        this.movementId = movementId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
 
 }
