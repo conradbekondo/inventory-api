@@ -37,4 +37,5 @@ public class Product {
 
     @UpdateTimestamp
     private Date updatedAt;
+
 }

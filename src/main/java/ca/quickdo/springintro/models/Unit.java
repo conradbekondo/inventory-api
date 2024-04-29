@@ -2,6 +2,8 @@ package ca.quickdo.springintro.models;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.persistence.*;
@@ -9,11 +11,16 @@ import java.util.Collection;
 import java.util.HashSet;
 
 @Data
-@Jacksonized
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "units")
 public class Unit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @Column
     private Double price;
 
@@ -22,10 +29,6 @@ public class Unit {
 
     @Column
     private Integer baseMultiplier;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
 
     @ManyToOne(targetEntity = Product.class)
     private Product product;
