@@ -63,7 +63,8 @@ public class InventoryController {
         }
 
         Page<ProductDTO> productDTOs = products.map(product -> {
-            int totalQuantity = movementsRepository.calculateTotalQuantityByProduct(product.getId());
+            Optional<Integer> TotalQuantity = movementsRepository.calculateTotalQuantityByProduct(product.getId());
+            int totalQuantity = TotalQuantity.orElse(0);
             return ProductDTO.builder()
                     .name(product.getName())
                     .color(product.getColor())
