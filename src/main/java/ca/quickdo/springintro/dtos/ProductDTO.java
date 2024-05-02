@@ -12,5 +12,6 @@ public class ProductDTO {
     private String color;
     private String description;
     private int quantity;
+    private double valueInStock;
 }
 

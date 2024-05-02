@@ -14,4 +14,7 @@ public interface MovementsRepository extends JpaRepository<Movement, Integer> {
     @Query("SELECT SUM(m.quantity) FROM Movement m JOIN m.unit u JOIN u.product p WHERE p.id = :productId")
     Optional<Integer> calculateTotalQuantityByProduct(@Param("productId") Integer productId);
 
+    @Query("SELECT SUM(m.quantity * u.price) FROM Movement m JOIN m.unit u JOIN u.product p WHERE p.id = :productId")
+    Optional<Double> calculateValueInStockByProduct(@Param("productId") Integer productId);
+
 }

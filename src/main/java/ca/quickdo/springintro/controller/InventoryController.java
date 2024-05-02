@@ -63,13 +63,20 @@ public class InventoryController {
         }
 
         Page<ProductDTO> productDTOs = products.map(product -> {
+            // Calculate the total quantity in stock for a product
             Optional<Integer> TotalQuantity = movementsRepository.calculateTotalQuantityByProduct(product.getId());
             int totalQuantity = TotalQuantity.orElse(0);
+
+            // Calculate the value in stock for a product
+            Optional<Double> optionalValueInStock = movementsRepository.calculateValueInStockByProduct(product.getId());
+            double valueInStock = optionalValueInStock.orElse(0.0);
+
             return ProductDTO.builder()
                     .name(product.getName())
                     .color(product.getColor())
                     .description(product.getDescription())
                     .quantity(totalQuantity)
+                    .valueInStock(valueInStock)
                     .build();
         });
 
