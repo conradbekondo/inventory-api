@@ -22,7 +22,6 @@ import java.util.HashSet;
 @AllArgsConstructor(onConstructor =@__({@JsonCreator}))
 @Table(name = "products")
 public class Product {
-    @Column
     private String name, color, description;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

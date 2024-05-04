@@ -29,19 +29,15 @@ public class Movement {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column
     private Integer quantity;
 
-    @Column
     @CreatedDate
     private Date supplyDate;
 
-    @Column
     private Integer direction;
 
     @ManyToOne(targetEntity = Unit.class)
     private Unit unit;
 
-    @Column
     private MovementStatus status;
 }
