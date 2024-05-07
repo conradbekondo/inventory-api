@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
-@RequestMapping(path = "/api/suppliers")
+@RequestMapping(path = "/api/suppliers/suppliers")
 public class SupplierController {
 
     private final SuppliersRepository suppliersRepository;
@@ -39,18 +41,17 @@ public class SupplierController {
 
     @GetMapping("/suppliers")
     public ResponseEntity<Page<SupplierDTO>> getSuppliers(
-            @RequestParam(required = false) Long afterSupplierId,
+            @RequestParam(required = false) Optional<Long> afterSupplierId,
             Pageable pageable
     ) {
         Page<Supplier> suppliers;
-        if (afterSupplierId != null) {
-            suppliers = suppliersRepository.findByIdGreaterThan(afterSupplierId, pageable);
+        if (afterSupplierId.isPresent()) {
+            suppliers = suppliersRepository.findByIdGreaterThan(afterSupplierId.get(), pageable);
         } else {
             suppliers = suppliersRepository.findAll(pageable);
         }
 
         Page<SupplierDTO> supplierDTOs = suppliers.map(supplier -> {
-
             return SupplierDTO.builder()
                     .name(supplier.getName())
                     .dateAdded(supplier.getDateAdded())

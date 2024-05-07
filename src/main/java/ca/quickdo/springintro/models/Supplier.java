@@ -7,8 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "suppliers")
-@Getter
-@Setter
+@Data
 @Builder
 @AllArgsConstructor
 public class Supplier {
