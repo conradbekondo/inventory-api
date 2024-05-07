@@ -1,6 +1,14 @@
 name: Docker Builder
 on:
+  pull_request:
+    branches:
+      - master
+    types: ['closed']
   push:
+    tags:
+      - 'v*'
+    branches:
+      - master
 
 jobs:
   build_and_deploy:
@@ -32,15 +40,17 @@ jobs:
       - name: Build Java Code
         run: gradle bootJar
 
-      - name: Build Docker Image
-        run: docker build --build-arg JAR_FILE=build/libs/spring-tutorial-0.0.1-SNAPSHOT.jar -t conrad302/inventory-api:latest .
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: conrad302/inventory-api
-
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+  
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -48,4 +58,9 @@ jobs:
             password: ${{ env.DOCKER_TOKEN }}
 
       - name: Push to Docker Hub
-        run: docker push conrad302/inventory-api:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
